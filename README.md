@@ -1,12 +1,43 @@
-# React + Vite
+# CollegTips Image Gallery
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, mobile-responsive React image gallery with a beautiful dark gradient background, interactive masonry layout, infinite scroll, and category filtering.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Layout**: Responsive columns for a Pinterest-style look.
+- **Infinite Scroll**: Loads more images as you scroll, with a loader and end-of-gallery message.
+- **Category Filters**: Filter images by categories like Team Vibes, Creative Campaigns, Work Hard, Play Hard, and Behind-The-Scenes.
+- **Interactive Hover**: Images blur and show a category caption on hover.
+- **Fullscreen View**: Click any image to view it in a fullscreen modal/lightbox with next/prev navigation and keyboard support.
+- **Mobile Responsive**: Looks great on all devices.
 
-## Expanding the ESLint configuration
+## Project Setup
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. **Clone the repository**
+
+   ```sh
+   git clone https://github.com/Vishal-Bisht/Image-Gallery.git
+   cd "Image Gallery"
+
+   npm install
+
+   - Place your images in the `public/Images` folder.
+   - Update `src/data/images.js` to include all your images with the correct `id`, `src`, `height`, and `category`.
+
+   npm run dev
+
+   Website hosted on vercel: https://image-gallery-liard-gamma.vercel.app/
+
+5. **Build for production**
+
+   ```sh
+   npm run build
+   ```
+
+## Customization
+- To add or change categories, update the filter buttons in `src/App.jsx` and the `category` field in `src/data/images.js`.
+- To change hover or modal styles, edit `src/components/Gallery.jsx`.
+
+---
+
+**Made with React, Vite, and Tailwind CSS.**
