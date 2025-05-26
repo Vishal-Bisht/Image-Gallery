@@ -39,5 +39,6 @@ A modern, mobile-responsive React image gallery with a beautiful dark gradient b
 - To change hover or modal styles, edit `src/components/Gallery.jsx`.
 
 ---
+## Videos will be added soon in this gallery
 
 **Made with React, Vite, and Tailwind CSS.**
