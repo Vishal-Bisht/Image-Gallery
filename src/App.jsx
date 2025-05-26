@@ -39,8 +39,8 @@ function App() {
           {/* Creative Campaigns */}
           <button
             className={`px-4 py-1.5 rounded-lg font-medium text-white bg-transparent hover:bg-pink-500/20 transition focus:outline-none focus:ring-2 focus:ring-pink-400 border border-pink-400/40 ${filterCategory === "creative" ? "ring-2 ring-pink-400 bg-pink-600/80 text-white scale-105 shadow-lg" : ""}`}
-            onClick={() => setFilterCategory("creative")}
-            aria-pressed={filterCategory === "creative"}
+            onClick={() => setFilterCategory("campaign")}
+            aria-pressed={filterCategory === "campaign"}
           >
             Creative Campaigns
           </button>

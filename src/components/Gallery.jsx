@@ -162,9 +162,6 @@ const Gallery = ({ filterCategory = "all" }) => {
                       />
                       {/* Hover overlay with caption, no blackout, just floating text */}
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
-                        <span className="text-white text-lg font-semibold drop-shadow-lg px-4 py-2 rounded-lg bg-black/30">
-                          {image.category ? image.category.replace("bts", "Behind-The-Scenes").replace("work", "Work Hard, Play Hard").replace("team", "Team Vibes").replace("default", "Creative Campaigns") : "View"}
-                        </span>
                       </div>
                     </div>
                   </div>
@@ -224,7 +221,7 @@ const Gallery = ({ filterCategory = "all" }) => {
           </button>
           <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white text-lg font-semibold bg-black bg-opacity-40 px-4 py-2 rounded-lg">
             {allImages[modalIndex]?.category
-              ? allImages[modalIndex].category.replace("bts", "Behind-The-Scenes").replace("work", "Work Hard, Play Hard").replace("team", "Team Vibes").replace("default", "Creative Campaigns")
+              ? allImages[modalIndex].category.replace("bts", "Behind-The-Scenes").replace("work", "Work Hard, Play Hard").replace("team", "Team Vibes").replace("campaign", "Creative Campaigns").replace("default","")
               : "Image"}
           </div>
         </div>
