@@ -1,7 +1,6 @@
 const images = [
   // list for all images
   { id: 1, src: '/Images/Image_1.jpg', height: 'h-48', category: 'team' },
-  { id: 2, src: '/Images/Image_2.jpg', height: 'h-48', category: 'default' },
   { id: 3, src: '/Images/Image_3.jpg', height: 'h-48', category: 'campaign' },
   { id: 4, src: '/Images/Image_4.jpg', height: 'h-48', category: 'default' },
   { id: 5, src: '/Images/Image_5.jpg', height: 'h-48', category: 'campaign' },

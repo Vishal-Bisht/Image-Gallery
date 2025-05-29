@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import images from "../data/data.js";
+import "../index.css";
+import VideoLoader from "./VideoLoader";
 
 const fadeInStyle = {
   opacity: 0,
@@ -11,6 +13,37 @@ const fadeInActiveStyle = {
   opacity: 1,
   transform: "translateY(0)",
 };
+
+const rippleStyle = `
+.ripple-bubble {
+  background: rgba(100,100,100,0.35);
+  border-radius: 9999px;
+  padding: 18px;
+  animation: ripple-bubble-appear 0.5s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 16px 4px rgba(80,80,80,0.18);
+  backdrop-filter: blur(4px);
+}
+@keyframes ripple-bubble-appear {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.7;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+`;
+if (typeof document !== 'undefined' && !document.getElementById('ripple-bubble-style')) {
+  const style = document.createElement('style');
+  style.id = 'ripple-bubble-style';
+  style.innerHTML = rippleStyle;
+  document.head.appendChild(style);
+}
 
 const Gallery = ({ filterCategory = "all" }) => {
   const [loading, setLoading] = useState(false);
@@ -24,6 +57,10 @@ const Gallery = ({ filterCategory = "all" }) => {
   const imagesPerPage = 20;
   const imageRefs = useRef({});
   const [visibleSet, setVisibleSet] = useState(new Set());
+  //  Per-video state and refs for all videos ---
+  const [videoStates, setVideoStates] = useState({}); // { [id]: { isPlaying, isMuted, showCenterIcon } }
+  const videoNodeRefs = useRef({}); // { [id]: video DOM node }
+  const [playingVideos, setPlayingVideos] = useState(new Set()); // Set of video IDs currently in viewport
 
   useEffect(() => {
     if (currentCategory !== filterCategory) {
@@ -60,7 +97,6 @@ const Gallery = ({ filterCategory = "all" }) => {
     (img) => !hiddenImages.has(img.id)
   );
 
-  // Only use visibleImages for rendering, not allImages
   // Track the number of images to show
   const [imagesToShow, setImagesToShow] = useState(imagesPerPage);
 
@@ -165,6 +201,35 @@ const Gallery = ({ filterCategory = "all" }) => {
     return () => observer.disconnect();
   }, [masonryColumns]);
 
+  useEffect(() => {
+    const observers = {};
+    pagedImages.forEach((img) => {
+      if (img.type === 'video') {
+        const videoEl = videoNodeRefs.current[img.id];
+        if (!videoEl) return;
+        if (observers[img.id]) observers[img.id].disconnect();
+        observers[img.id] = new window.IntersectionObserver(
+          ([entry]) => {
+            setPlayingVideos((prev) => {
+              const newSet = new Set(prev);
+              if (entry.isIntersecting) {
+                newSet.add(img.id);
+              } else {
+                newSet.delete(img.id);
+              }
+              return newSet;
+            });
+          },
+          { threshold: 0.5 }
+        );
+        observers[img.id].observe(videoEl);
+      }
+    });
+    return () => {
+      Object.values(observers).forEach((observer) => observer.disconnect());
+    };
+  }, [pagedImages]);
+
   return (
     <>
       <div className="pt-4">
@@ -177,6 +242,72 @@ const Gallery = ({ filterCategory = "all" }) => {
                 );
                 if (hiddenImages.has(image.id)) return null;
                 const isVideo = image.type === 'video';
+                // Initialize video state if not already set
+                let isPlaying = true;
+                let isMuted = true;
+                let showCenterIcon = false;
+                if (isVideo) {
+                  isPlaying = videoStates[image.id]?.isPlaying ?? true;
+                  isMuted = videoStates[image.id]?.isMuted ?? true;
+                  showCenterIcon = videoStates[image.id]?.showCenterIcon ?? false;
+                }
+                // Video controls handlers
+                const handleVideoClick = (e) => {
+                  e.stopPropagation();
+                  const videoEl = videoNodeRefs.current[image.id];
+                  if (!videoEl) return;
+                  // Toggle play/pause
+                  if (videoEl.paused) {
+                    videoEl.play();
+                    setVideoStates((prev) => ({
+                      ...prev,
+                      [image.id]: {
+                        ...prev[image.id],
+                        isPlaying: true,
+                        showCenterIcon: true,
+                        iconType: 'play',
+                      },
+                    }));
+                  } else {
+                    videoEl.pause();
+                    setVideoStates((prev) => ({
+                      ...prev,
+                      [image.id]: {
+                        ...prev[image.id],
+                        isPlaying: false,
+                        showCenterIcon: true,
+                        iconType: 'pause',
+                      },
+                    }));
+                  }
+                  // Hide overlay after animation duration
+                  setTimeout(() => {
+                    setVideoStates((prev) => ({
+                      ...prev,
+                      [image.id]: {
+                        ...prev[image.id],
+                        showCenterIcon: false,
+                      },
+                    }));
+                  }, 600); // match animation duration
+                };
+                const handleMuteToggle = (e) => {
+                  e.stopPropagation();
+                  const videoEl = videoNodeRefs.current[image.id];
+                  if (!videoEl) return;
+                  videoEl.muted = !videoEl.muted;
+                  setVideoStates((prev) => ({
+                    ...prev,
+                    [image.id]: {
+                      ...prev[image.id],
+                      isMuted: videoEl.muted,
+                    },
+                  }));
+                };
+                const handleVideoDoubleClick = (e) => {
+                  e.stopPropagation();
+                  openModal(globalIdx);
+                };
                 return (
                   <div
                     key={`${image.id}-${imgIdx}`}
@@ -193,27 +324,22 @@ const Gallery = ({ filterCategory = "all" }) => {
                   >
                     <div className="relative overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] block">
                       {isVideo ? (
-                        <video
-                          src={image.src}
-                          className={
-                            "w-full object-cover transition-transform duration-300 object-center " +
-                            (image.height || "h-48") +
-                            " w-full max-w-full"
-                          }
-                          style={{
-                            objectFit: "cover",
-                            width: "100%",
-                            height: "100%",
-                            display: "block",
-                            maxWidth: "100%",
-                          }}
-                          autoPlay
-                          muted
-                          loop
-                          playsInline
-                          controls
-                          onContextMenu={e => e.preventDefault()}
-                        />
+                        <>
+                          <VideoLoader
+                            src={image.src}
+                            poster={image.poster}
+                            isInViewport={playingVideos.has(image.id) && !modalOpen}
+                            modalOpen={modalOpen && modalIndex === globalIdx}
+                            onDoubleClick={handleVideoDoubleClick}
+                            onCloseModal={() => setModalOpen(false)}
+                            videoRef={el => { videoNodeRefs.current[image.id] = el; }}
+                            // Shared state props
+                            isPlaying={videoStates[image.id]?.isPlaying ?? false}
+                            setIsPlaying={val => setVideoStates(prev => ({ ...prev, [image.id]: { ...prev[image.id], isPlaying: val } }))}
+                            isMuted={videoStates[image.id]?.isMuted ?? true}
+                            setIsMuted={val => setVideoStates(prev => ({ ...prev, [image.id]: { ...prev[image.id], isMuted: val } }))}
+                          />
+                        </>
                       ) : (
                         <img
                           src={image.src}
@@ -276,12 +402,57 @@ const Gallery = ({ filterCategory = "all" }) => {
           >
             &#8592;
           </button>
-          <img
-            src={pagedImages[modalIndex]?.src}
-            alt=""
-            className="max-h-[80vh] max-w-[90vw] rounded-xl shadow-2xl object-contain border-4 border-white border-opacity-10"
-            style={{ background: "#222" }}
-          />
+          {pagedImages[modalIndex]?.type === 'video' ? (
+            <div
+              className="flex flex-col items-center justify-center"
+              style={{
+                width: 'min(420px, 90vw)',
+                height: 'min(750px, 90vh)',
+                background: '#111',
+                borderRadius: '1.5rem',
+                boxShadow: '0 0 32px 8px rgba(0,0,0,0.5)',
+                overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <div style={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: '#111',
+              }}>
+                <VideoLoader
+                  src={pagedImages[modalIndex]?.src}
+                  poster={pagedImages[modalIndex]?.poster}
+                  isInViewport={true}
+                  modalOpen={true}
+                  onDoubleClick={() => {}}
+                  onCloseModal={closeModal}
+                  videoRef={el => { videoNodeRefs.current[pagedImages[modalIndex]?.id] = el; }}
+                  showModalNav={true}
+                  onModalPrev={showPrev}
+                  onModalNext={showNext}
+                  onModalClose={closeModal}
+                  // Shared state props
+                  isPlaying={videoStates[pagedImages[modalIndex]?.id]?.isPlaying ?? false}
+                  setIsPlaying={val => setVideoStates(prev => ({ ...prev, [pagedImages[modalIndex]?.id]: { ...prev[pagedImages[modalIndex]?.id], isPlaying: val } }))}
+                  isMuted={videoStates[pagedImages[modalIndex]?.id]?.isMuted ?? true}
+                  setIsMuted={val => setVideoStates(prev => ({ ...prev, [pagedImages[modalIndex]?.id]: { ...prev[pagedImages[modalIndex]?.id], isMuted: val } }))}
+                />
+              </div>
+            </div>
+          ) : (
+            <img
+              src={pagedImages[modalIndex]?.src}
+              alt=""
+              className="max-h-[80vh] max-w-[90vw] rounded-xl shadow-2xl object-contain border-4 border-white border-opacity-10"
+              style={{ background: "#222" }}
+            />
+          )}
           <button
             className="absolute right-4 top-1/2 -translate-y-1/2 text-white text-3xl font-bold bg-black bg-opacity-40 rounded-full px-3 py-1 hover:bg-opacity-70 transition"
             onClick={showNext}
@@ -290,28 +461,13 @@ const Gallery = ({ filterCategory = "all" }) => {
             &#8594;
           </button>
           <div
-            className={[
-              "absolute bottom-8 left-1/2 -translate-x-1/2 text-white text-lg font-semibold bg-black bg-opacity-40 px-4 py-2 rounded-lg",
-              (() => {
-                // Use the current filterCategory for color if active, else use firstCat
-                const cat = pagedImages[modalIndex]?.category;
-                let colorCat = filterCategory && filterCategory !== 'all'
-                  ? filterCategory
-                  : (Array.isArray(cat) ? cat[0] : cat);
-                if (!colorCat) return '';
-                if (colorCat === 'team') return 'ring-2 ring-purple-400 shadow-[0_0_16px_4px_rgba(168,85,247,0.5)]';
-                if (colorCat === 'campaign') return 'ring-2 ring-pink-400 shadow-[0_0_16px_4px_rgba(244,114,182,0.5)]';
-                if (colorCat === 'fun' || colorCat === 'work') return 'ring-2 ring-blue-400 shadow-[0_0_16px_4px_rgba(96,165,250,0.5)]';
-                if (colorCat === 'bts') return 'ring-2 ring-gray-400 shadow-[0_0_16px_4px_rgba(156,163,175,0.5)]';
-                return 'ring-2 ring-gray-400 shadow-[0_0_16px_4px_rgba(156,163,175,0.3)]';
-              })()
-            ].join(' ')}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white text-lg font-semibold bg-black bg-opacity-40 px-4 py-2 rounded-lg"
+            style={filterCategory === 'all' ? { display: 'none' } : {}}
           >
             {(() => {
+              if (!filterCategory || filterCategory === 'all') return null;
               const cat = pagedImages[modalIndex]?.category;
-              // If a filter is active (not 'all'), only show the display name for the filterCategory
               if (filterCategory && filterCategory !== 'all') {
-                // Map filterCategory to display name
                 return filterCategory
                   .replace("bts", "Behind-The-Scenes")
                   .replace("work", "Work Hard, Play Hard")
@@ -322,10 +478,8 @@ const Gallery = ({ filterCategory = "all" }) => {
               }
               if (!cat) return "Image";
               if (Array.isArray(cat)) {
-                // Join all categories, map to display names
                 return cat.map(c =>
                   c.replace("bts", "Behind-The-Scenes")
-                   .replace("work", "Work Hard, Play Hard")
                    .replace("fun", "Work Hard, Play Hard")
                    .replace("team", "Team Vibes")
                    .replace("campaign", "Creative Campaigns")
@@ -334,7 +488,6 @@ const Gallery = ({ filterCategory = "all" }) => {
               }
               return cat
                 .replace("bts", "Behind-The-Scenes")
-                .replace("work", "Work Hard, Play Hard")
                 .replace("fun", "Work Hard, Play Hard")
                 .replace("team", "Team Vibes")
                 .replace("campaign", "Creative Campaigns")
