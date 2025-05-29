@@ -63,6 +63,7 @@ function App() {
         </div>
       </div>
       <Gallery filterCategory={filterCategory} />
+      
     </div>
   );
 }

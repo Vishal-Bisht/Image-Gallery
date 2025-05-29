@@ -225,5 +225,4 @@ const images = [
   { id: 1079, src: '/Videos/Video_79.mp4', type: 'video', height: 'h-48', category: 'default' },
 ];
 
-const data = images;
 export default data;

@@ -371,13 +371,36 @@ const Gallery = ({ filterCategory = "all" }) => {
         </div>
         <div
           ref={loaderRef}
-          className="h-20 mt-8 flex items-center justify-center"
+          className="h-40 mt-8 flex items-center justify-center"
         >
           {imagesToShow < visibleImages.length ? (
             <div className="text-gray-400">Scroll for more</div>
           ) : (
-            <div className="text-gray-500">
-              All images loaded ({visibleImages.length})
+            <div className="flex flex-col items-center justify-center w-full">
+              <div className="text-pink-500 font-extrabold text-3xl md:text-4xl mb-2 animate-bounce text-center">
+                You have reached the end of the gallery!
+              </div>
+              <div className="text-white font-bold text-2xl md:text-3xl mb-1 text-center">
+                Want More?
+              </div>
+              <div className="text-gray-300 font-semibold text-xl md:text-2xl mb-2 text-center">
+                Follow us on Instagram
+              </div>
+              <a href="https://www.instagram.com/collegetips.in/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 mt-2 text-pink-500 hover:text-pink-400 text-2xl md:text-3xl font-bold">
+                <svg width="36" height="36" viewBox="0 0 448 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="448" height="512" rx="100" fill="url(#ig-gradient)"/>
+                  <defs>
+                    <linearGradient id="ig-gradient" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#f58529"/>
+                      <stop offset="30%" stop-color="#dd2a7b"/>
+                      <stop offset="60%" stop-color="#8134af"/>
+                      <stop offset="100%" stop-color="#515bd4"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9 114.9-51.3 114.9-114.9S287.7 141 224.1 141zm0 186c-39.5 0-71.5-32-71.5-71.5s32-71.5 71.5-71.5 71.5 32 71.5 71.5-32 71.5-71.5 71.5zm146.4-194.3c0 14.9-12 26.9-26.9 26.9s-26.9-12-26.9-26.9 12-26.9 26.9-26.9 26.9 12 26.9 26.9zm76.1 27.2c-1.7-35.3-9.9-66.7-36.2-92.9S388.6 1.7 353.3 0C317.5-1.7 130.5-1.7 94.7 0 59.4 1.7 28 9.9 1.7 36.2S1.7 59.4 0 94.7C-1.7 130.5-1.7 317.5 0 353.3c1.7 35.3 9.9 66.7 36.2 92.9s57.6 34.5 92.9 36.2c35.8 1.7 222.8 1.7 258.6 0 35.3-1.7 66.7-9.9 92.9-36.2s34.5-57.6 36.2-92.9c1.7-35.8 1.7-222.8 0-258.6zM398.8 388c-7.8 19.6-22.9 34.7-42.5 42.5-29.4 11.7-99.2 9-132.3 9s-102.9 2.6-132.3-9c-19.6-7.8-34.7-22.9-42.5-42.5-11.7-29.4-9-99.2-9-132.3s-2.6-102.9 9-132.3c7.8-19.6 22.9-34.7 42.5-42.5C91.9 21.6 161.7 24.2 194.8 24.2s102.9-2.6 132.3 9c19.6 7.8 34.7 22.9 42.5 42.5 11.7 29.4 9 99.2 9 132.3s2.6 102.9-9 132.3z" fill="#fff"/>
+                </svg>
+                @collegetips.in
+              </a>
             </div>
           )}
         </div>
