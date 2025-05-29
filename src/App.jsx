@@ -46,9 +46,9 @@ function App() {
           </button>
           {/* Work Hard, Play Hard */}
           <button
-            className={`px-4 py-1.5 rounded-lg font-medium text-white bg-transparent hover:bg-blue-500/20 transition focus:outline-none focus:ring-2 focus:ring-blue-400 border border-blue-400/40 ${filterCategory === "work" ? "ring-2 ring-blue-400 bg-blue-600/80 text-white scale-105 shadow-lg" : ""}`}
-            onClick={() => setFilterCategory("work")}
-            aria-pressed={filterCategory === "work"}
+            className={`px-4 py-1.5 rounded-lg font-medium text-white bg-transparent hover:bg-blue-500/20 transition focus:outline-none focus:ring-2 focus:ring-blue-400 border border-blue-400/40 ${filterCategory === "fun" ? "ring-2 ring-blue-400 bg-blue-600/80 text-white scale-105 shadow-lg" : ""}`}
+            onClick={() => setFilterCategory("fun")}
+            aria-pressed={filterCategory === "fun"}
           >
             Work Hard, Play Hard
           </button>
