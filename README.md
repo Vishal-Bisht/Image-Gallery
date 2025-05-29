@@ -21,24 +21,25 @@ A modern, mobile-responsive React image gallery with a beautiful dark gradient b
 
    npm install
 
-   - Place your images in the `public/Images` folder.
-   - Update `src/data/images.js` to include all your images with the correct `id`, `src`, `height`, and `category`.
-
    npm run dev
 
    Website hosted on vercel: https://image-gallery-liard-gamma.vercel.app/
 
-5. **Build for production**
-
-   ```sh
-   npm run build
-   ```
-
 ## Customization
-- To add or change categories, update the filter buttons in `src/App.jsx` and the `category` field in `src/data/images.js`.
+- To add or change categories, update the filter buttons in `src/App.jsx` and the `category` field in `src/data/data.js`.
 - To change hover or modal styles, edit `src/components/Gallery.jsx`.
 
 ---
-## Videos will be added soon in this gallery
+## Videos added
 
-**Made with React, Vite, and Tailwind CSS.**
+### Current Issues with Videos
+- Videos are not shown in the modal view; only images are displayed in fullscreen modal.
+- When navigating in modal, videos are skipped and cannot be viewed in fullscreen.
+- Video playback, mute/unmute, and play/pause controls are not synced with the modal view.
+
+---
+# If you would like to contribute improvements or new features for video support in modal view, feel free to open a pull request!
+
+---
+
+**Made with React, Vite and Tailwindcss.**
