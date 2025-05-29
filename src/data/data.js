@@ -1,4 +1,4 @@
-const images = [
+const data = [
   // list for all images
   { id: 1, src: '/Images/Image_1.jpg', height: 'h-48', category: 'team' },
   { id: 3, src: '/Images/Image_3.jpg', height: 'h-48', category: 'campaign' },
